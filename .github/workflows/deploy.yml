@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
       
-      - name: setup ssh key
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ec2-3-110-194-247.ap-south-1.compute.amazonaws.com >> ~/.ssh/known_hosts
 
-      - name: deploy to ec2
+      - name: Deploy to EC2
         run: |
-          ssh ec2-user@ec2-3-110-194-247.ap-south-1.compute.amazonaws.com << 'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@ec2-3-110-194-247.ap-south-1.compute.amazonaws.com << 'EOF'
+            set -e  # Fail fast if any command fails
             cd ~/app
             git pull origin master
             docker-compose down
             docker-compose -f docker/docker-compose.yml up --build -d
           EOF
-      
