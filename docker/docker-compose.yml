@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: markdown-converter-app
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "${PORT}"  # Uses .env value or defaults to 3000
+    env_file:
+      - ../.env  # One folder back
+    restart: always
