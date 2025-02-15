@@ -12,20 +12,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ec2-3-110-194-247.ap-south-1.compute.amazonaws.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ vars.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@ec2-3-110-194-247.ap-south-1.compute.amazonaws.com << 'EOF'
-            set -e  # Fail fast if any command fails
-            cd ~/app
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} '
+            cd app
+            echo PORT=${{ vars.PORT }} > .env
             git pull origin master
             docker-compose down
-            docker-compose -f docker/docker-compose.yml up --build -d
-          EOF
+            docker-compose -f docker/docker-compose.yml up -d --build
+            '
