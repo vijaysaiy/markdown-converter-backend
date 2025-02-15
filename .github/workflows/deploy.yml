@@ -16,7 +16,7 @@ jobs:
       - name: setup ssh key
         run: |
           mkdir -p ~/.ssh
-          echo "${{secrets.EC2_SSH_KEY}}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ec2-3-110-194-247.ap-south-1.compute.amazonaws.com >> ~/.ssh/known_hosts
 
